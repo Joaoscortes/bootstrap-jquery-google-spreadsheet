@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Bootstrap JQuery Google Spreadsheet</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+</head>
+
+<body>
+
+  <div class="container mt-3 p-3 border border-dark rounded bg-light">
+    <h2>New User</h2>
+    <form id="form1" onsubmit="getFormData(event)">
+      <div class="form-group">
+        <label for="email">Name:</label>
+        <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" required>
+      </div>
+      <div class="form-check-inline">
+        <label class="form-check-label">
+          <input type="radio" class="form-check-input" value="Male" name="gender" required>Male
+        </label>
+      </div>
+      <div class="form-check-inline">
+        <label class="form-check-label">
+          <input type="radio" class="form-check-input" value="Female" name="gender" required>Female
+        </label>
+      </div>
+      <div class="form-check-inline">
+        <label class="form-check-label">
+          <input type="radio" class="form-check-input" value="Other" name="gender" required>Other
+        </label>
+      </div>
+      <div class="text-center">
+        <div class="checkbox">
+          <label><input id="gdpr" type="checkbox" name="gdpr" value="true" required> Agree <abbr title="General Data Protection Regulation">GDPR</abbr></label>
+        </div>
+        <button id="btn-submit" type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+  <br>
+
+  <div class="container mt-3 p-3 border border-dark rounded bg-light">
+    <h2>Users</h2>
+    <table id="users-table" class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Gender</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data from Spreadsheet -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+  <script>
+    // -----------> ID of the Google Spreadsheet <-----------
+    var spreadsheetID = "spreadsheetID";
+    // -----------> ID of the Google Script <-----------
+    var macroID = 'macroID';
+
+    function getFormData(event) {
+      let user = {
+        name: $("#name").val(),
+        email: $("#email").val(),
+        gender: getGender($('[name="gender"]')),
+        gdpr: $("#gdpr").is(":checked")
+      }
+      var url = 'https://script.google.com/macros/s/' + macroID + '/exec';
+      var jqxhr = $.ajax({
+        url: url,
+        method: "GET",
+        dataType: "json",
+        data: user
+      }).done(
+        addRowToTable(user)
+      );
+    }
+    function getGender(x) {
+      for (let i = 0; i < x.length; i++) {
+        if (x[i].checked == true) {
+          return x[i].value;
+        }
+      }
+    }
+    function addRowToTable(user) {
+      $('#users-table tr:last').after('<tr><td>' + user.name + '</td><td>' + user.email + '</td><td>' + user.gender + '</td></tr>');
+    }
+    function getData() {
+      let url = "https://spreadsheets.google.com/feeds/list/" + spreadsheetID + "/od6/public/values?alt=json";
+      $.getJSON(url, function (data) {
+        var entry = data.feed.entry;
+        $(entry).each(function () {
+          let user = {
+            name: this.gsx$name.$t,
+            email: this.gsx$email.$t,
+            gender: this.gsx$gender.$t,
+          };
+          addRowToTable(user);
+        });
+      });
+    }
+    $(document).ready(function () {
+      getData();
+    });
+  </script>
+</body>
+
+</html>
