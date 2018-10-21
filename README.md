@@ -69,7 +69,9 @@ function setup() {
 
 ```
 
-3. Modify "spreadsheetID" and 'macroID'
+3. Publish SpreadSheet and macro to the web 
+
+Modify "spreadsheetID" and 'macroID'
 
 ```js
 // -----------> ID of the Google Spreadsheet <-----------
