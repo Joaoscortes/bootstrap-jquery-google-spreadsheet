@@ -69,7 +69,7 @@ function setup() {
 
 ```
 
-3. Publish SpreadSheet and macro to the web 
+3. Publish macro -> Deploy as web app (Execute the app as "Me" // Who has access to the app "Anyone, even anonymous") 
 
 Modify "spreadsheetID" and 'macroID'
 
